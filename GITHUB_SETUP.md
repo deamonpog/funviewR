@@ -24,35 +24,20 @@ git commit -m "Initial commit: funviewR package with GPL-3 license"
 
 ## 3. Link Local Repository to GitHub
 
-Replace `yourusername` with your actual GitHub username:
-
 ```powershell
-git remote add origin https://github.com/yourusername/funviewR.git
+git remote add origin https://github.com/deamonpog/funviewR.git
 git branch -M main
 git push -u origin main
 ```
 
 ## 4. Update README.md
 
-After creating the repository, update the installation instruction in `README.md`:
-
-Replace:
+The README.md already has the correct installation instructions:
 ```r
-remotes::install_github("yourusername/funviewR")
+remotes::install_github("deamonpog/funviewR")
 ```
 
-With your actual GitHub username:
-```r
-remotes::install_github("your-actual-username/funviewR")
-```
-
-Then commit and push:
-
-```powershell
-git add README.md
-git commit -m "Update installation instructions with correct GitHub username"
-git push
-```
+No changes needed! You're all set.
 
 ## 5. Add GitHub Topics (Optional but Recommended)
 
@@ -100,7 +85,7 @@ After pushing, verify your repository includes:
 After pushing to GitHub, test installation with:
 
 ```r
-remotes::install_github("your-actual-username/funviewR")
+remotes::install_github("deamonpog/funviewR")
 library(funviewR)
 ?analyze_internal_dependencies_multi
 ```

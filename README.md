@@ -25,7 +25,7 @@ You can install the development version from GitHub:
 install.packages("remotes")
 
 # Install funviewR from GitHub
-remotes::install_github("yourusername/funviewR")
+remotes::install_github("deamonpog/funviewR")
 ```
 
 ## Usage

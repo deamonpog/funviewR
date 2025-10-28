@@ -1,0 +1,15 @@
+Package: funviewR
+Title: Visualize Function Call Dependencies in R Source Code
+Version: 0.1.0
+Authors@R: 
+    person("Chathura", "Jayalath", email = "acj.chathura@gmail.com", role = c("aut", "cre"))
+Description: Analyze R source code to detect function definitions and internal dependencies, and visualize them as interactive graphs.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    codetools,
+    visNetwork
+Suggests:
+    htmlwidgets

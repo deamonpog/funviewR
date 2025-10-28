@@ -1,0 +1,10 @@
+^funviewR\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^LICENSE\.md$
+^\.github$
+^\.git$
+^\.gitignore$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

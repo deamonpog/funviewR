@@ -240,7 +240,7 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
   }
 
   visNetwork(nodes, edges, width = "100%", height = "100vh") %>%
-    visEdges(smooth = list(enabled = TRUE, type = "dynamic")) %>%
+    visEdges(smooth = list(enabled = TRUE, type = "continuous")) %>%
     visNodes(font = list(
       size = 20,
       strokeWidth = 2, # Add text outline for better readability
@@ -273,25 +273,28 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
       adaptiveTimestep = TRUE
     ) %>%
     visEvents(
+      stabilizationIterationsDone = "function () {
+        this.setOptions({physics: false});
+      }",
       dragStart = "function (params) {
-    if (params.nodes.length > 0) {
-      var id = params.nodes[0];
-      var node = this.body.data.nodes.get(id);
-      // Only allow dragging if node is not fixed
-      if (!node.fixed) {
-        this.body.data.nodes.update({id: id, fixed: {x: false, y: false}});
-      }
-    }
-  }",
-      dragEnd = "function (params) {
-    if (params.nodes.length > 0) {
-      var id = params.nodes[0];
-      var node = this.body.data.nodes.get(id);
-      // Only update position if node is not fixed
-      if (!node.fixed) {
-        this.body.data.nodes.update({id: id, fixed: {x: true, y: true}});
-      }
-    }
-  }"
+        if (params.nodes.length > 0) {
+        var id = params.nodes[0];
+        var node = this.body.data.nodes.get(id);
+        // Only allow dragging if node is not fixed
+        if (!node.fixed) {
+            this.body.data.nodes.update({id: id, fixed: {x: false, y: false}});
+        }
+        }
+    }",
+        dragEnd = "function (params) {
+        if (params.nodes.length > 0) {
+        var id = params.nodes[0];
+        var node = this.body.data.nodes.get(id);
+        // Only update position if node is not fixed
+        if (!node.fixed) {
+            this.body.data.nodes.update({id: id, fixed: {x: true, y: true}});
+        }
+        }
+    }"
     )
 }

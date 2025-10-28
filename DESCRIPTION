@@ -10,6 +10,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
     codetools,
-    visNetwork
+    visNetwork,
+    igraph,
+    htmltools,
+    magrittr
 Suggests:
     htmlwidgets

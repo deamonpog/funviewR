@@ -10,3 +10,4 @@
 ^pkgdown$
 ^cran-comments\.md$
 ^GITHUB_SETUP_ignore\.md$
+^CRAN-SUBMISSION$

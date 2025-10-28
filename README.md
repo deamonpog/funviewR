@@ -8,11 +8,13 @@
 ## Features
 
 - 📊 **Analyze R code dependencies** - Automatically detect function definitions and calls
-- 🔍 **Multi-file support** - Analyze multiple R files together
+- 🔍 **Multi-file & directory support** - Analyze multiple R files and directories together
+- 🤖 **Auto-detection** - Automatically detects whether paths are files or directories
 - 📈 **Interactive visualization** - Create beautiful dependency graphs with `visNetwork`
 - 🔧 **Detailed tooltips** - View function arguments, return values, and documentation
 - 🎯 **Smart layout** - Hierarchical graph layout with most-connected nodes centered
 - ⚠️ **Duplicate detection** - Identify functions defined in multiple files
+- ⚡ **One-line plotting** - Quick visualization with `plot_dependency_graph()`
 
 ## Installation
 
@@ -30,29 +32,68 @@ remotes::install_github("deamonpog/funviewR")
 
 ## Usage
 
-### Basic Example
+### Quick Start (One-Line Solution)
+
+The easiest way to visualize dependencies:
 
 ```r
 library(funviewR)
 
-# Analyze a single R file
+# Analyze files or directories - auto-detects which is which!
+plot_dependency_graph(c("R/", "analysis.R", "tests/"))
+
+# Single directory
+plot_dependency_graph("R/")
+
+# Specific files
+plot_dependency_graph(c("script1.R", "script2.R"))
+
+# With options
+plot_dependency_graph("src/", 
+                      recursive = TRUE, 
+                      include_disconnected = FALSE)
+```
+
+### Advanced Usage (Two-Step Process)
+
+For more control and access to analysis data:
+
+```r
+library(funviewR)
+
+# Step 1: Analyze files
 file_paths <- c("path/to/your/script.R")
 dep_info <- analyze_internal_dependencies_multi(file_paths)
 
-# Create an interactive dependency graph
+# Step 2: Create visualization
 plot_interactive_dependency_graph(dep_info)
 ```
 
-### Analyzing Multiple Files
+### Working with Directories
 
 ```r
-# Analyze multiple R files in a directory
-file_paths <- list.files("R/", pattern = "\\.R$", full.names = TRUE)
-dep_info <- analyze_internal_dependencies_multi(file_paths)
+# Get all R files from a directory
+files <- get_r_files("R/")
 
-# Plot the graph
-graph <- plot_interactive_dependency_graph(dep_info, include_disconnected = FALSE)
-graph
+# Get R files recursively
+files <- get_r_files("R/", recursive = TRUE)
+
+# Then analyze
+dep_info <- analyze_internal_dependencies_multi(files)
+graph <- plot_interactive_dependency_graph(dep_info)
+```
+
+### Analyzing Multiple Sources
+
+```r
+# Mix files and directories - automatically detected!
+plot_dependency_graph(c(
+  "R/core/",
+  "main.R",
+  "R/utils/",
+  "tests/",
+  "helpers.R"
+), recursive = TRUE)
 ```
 
 ### Working with the Results
@@ -94,7 +135,9 @@ The interactive graph provides:
 - R >= 3.5.0
 - codetools
 - visNetwork
-- htmlwidgets
+- igraph
+- htmltools
+- magrittr
 
 ## Contributing
 
@@ -113,3 +156,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 - Built with [visNetwork](https://github.com/datastorm-open/visNetwork) for interactive graph visualization
 - Uses R's [codetools](https://cran.r-project.org/package=codetools) for dependency analysis
+- Leverages [igraph](https://igraph.org/r/) for graph algorithms and distance calculations
+- Uses [htmltools](https://github.com/rstudio/htmltools) for safe HTML rendering
+- Powered by [magrittr](https://magrittr.tidyverse.org/) pipe operator

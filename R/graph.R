@@ -1,10 +1,75 @@
 #' Plot an interactive dependency graph
 #'
-#' @param dep_info Output from analyze_internal_dependencies_multi()
-#' @param include_disconnected If FALSE, exclude isolated nodes
-#' @return A visNetwork HTML widget
+#' Creates an interactive network visualization of function dependencies using
+#' \code{visNetwork}. Nodes represent functions and edges represent function calls.
+#' The graph uses hierarchical layout with color-coding based on distance from
+#' the most-connected function.
+#'
+#' @param dep_info List. Output from \code{\link{analyze_internal_dependencies_multi}}
+#'   containing dependency information and function metadata.
+#' @param include_disconnected Logical. If \code{FALSE}, excludes nodes that are
+#'   not connected to the center node (most-connected function). Default is
+#'   \code{TRUE}.
+#'
+#' @return A \code{visNetwork} HTML widget displaying the interactive dependency
+#'   graph. The widget can be displayed in RStudio Viewer, web browser, or saved
+#'   to HTML using \code{htmlwidgets::saveWidget()}.
+#'
+#' @details
+#' The visualization includes:
+#' \itemize{
+#'   \item \strong{Node colors}: Functions are color-coded by their distance
+#'     (number of hops) from the most-connected function
+#'   \item \strong{Node shapes}: Boxes for defined functions, ellipses for
+#'     undefined/external functions
+#'   \item \strong{Tooltips}: Hover over nodes to see function arguments, return
+#'     values, source file, and documentation
+#'   \item \strong{Interactive controls}: Zoom, pan, drag nodes, and navigation
+#'     buttons
+#' }
+#'
+#' The center node (most-connected function) is fixed at position (0,0) and
+#' rendered in dark red. Other nodes are positioned using a force-directed layout.
+#'
+#' @importFrom htmltools htmlEscape
+#' @importFrom igraph graph_from_data_frame distances
+#' @importFrom magrittr %>%
+#' @importFrom visNetwork visNetwork visEdges visNodes visInteraction visOptions visPhysics visEvents
+#' @importFrom utils tail
+#' 
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Analyze files and create graph
+#' files <- c("analysis.R", "utils.R")
+#' dep_info <- analyze_internal_dependencies_multi(files)
+#' graph <- plot_interactive_dependency_graph(dep_info)
+#'
+#' # Show only connected components
+#' graph <- plot_interactive_dependency_graph(dep_info,
+#'                                           include_disconnected = FALSE)
+#'
+#' # Save to HTML file
+#' htmlwidgets::saveWidget(graph, "dependencies.html")
+#' }
 plot_interactive_dependency_graph <- function(dep_info, include_disconnected = TRUE) {
+  # Input validation
+  if (missing(dep_info) || !is.list(dep_info)) {
+    stop("'dep_info' must be a list (output from analyze_internal_dependencies_multi)")
+  }
+  
+  required_fields <- c("dependency_map", "env", "all_code_lines", "function_file_map")
+  missing_fields <- setdiff(required_fields, names(dep_info))
+  if (length(missing_fields) > 0) {
+    stop("'dep_info' is missing required fields: ", 
+         paste(missing_fields, collapse = ", "))
+  }
+  
+  if (!is.logical(include_disconnected) || length(include_disconnected) != 1) {
+    stop("'include_disconnected' must be a single logical value (TRUE or FALSE)")
+  }
+  
   dep_map <- dep_info$dependency_map
   env <- dep_info$env
   all_code_lines <- dep_info$all_code_lines
@@ -55,12 +120,12 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
         color = "lightblue",
         title = paste0(
           "<b>Function:</b> ", fname, "<br>",
-          "<b>Args:</b> ", htmlEscape(args), "<br>",
+          "<b>Args:</b> ", htmltools::htmlEscape(args), "<br>",
           "<b>Returns:</b> ",
-          if (!is.null(ret_expr)) htmlEscape(ret_expr) else "?", "<br>",
-          "<b>Source:</b> ", htmlEscape(src_file), "<br>",
+          if (!is.null(ret_expr)) htmltools::htmlEscape(ret_expr) else "?", "<br>",
+          "<b>Source:</b> ", htmltools::htmlEscape(src_file), "<br>",
           if (nzchar(doc)) {
-            paste0("<b>Description:</b> ", htmlEscape(doc), "<br>")
+            paste0("<b>Description:</b> ", htmltools::htmlEscape(doc), "<br>")
           } else {
             ""
           }

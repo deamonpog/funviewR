@@ -1,8 +1,23 @@
 #' Get all parsed expressions from an R file
 #'
-#' @param file_path Path to R file
-#' @return List of expressions or NULL
+#' Reads an R source file and parses it into a list of expressions. This is a
+#' utility function primarily used internally by
+#' \code{\link{analyze_internal_dependencies_multi}}.
+#'
+#' @param file_path Character string. Path to an R file to parse.
+#'
+#' @return A list of parsed expressions, or \code{NULL} if parsing fails.
+#'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Parse a single file
+#' exprs <- get_all_expressions("my_script.R")
+#' if (!is.null(exprs)) {
+#'   print(length(exprs))
+#' }
+#' }
 get_all_expressions <- function(file_path) {
   code_lines <- readLines(file_path, warn = FALSE)
   code_text <- paste(code_lines, collapse = "\n")
@@ -12,18 +27,28 @@ get_all_expressions <- function(file_path) {
 
 #' Get all R files from a directory
 #'
-#' @param directory Path to directory containing R files
-#' @param recursive If TRUE, search subdirectories recursively. Default is FALSE.
-#' @param pattern Regular expression pattern for filenames. Default is "\\.R$" (files ending in .R)
-#' @return Character vector of full paths to R files
+#' Recursively or non-recursively searches a directory for R source files
+#' matching a specified pattern. Returns full paths suitable for use with
+#' \code{\link{analyze_internal_dependencies_multi}}.
+#'
+#' @param directory Character string. Path to directory containing R files.
+#' @param recursive Logical. If \code{TRUE}, search subdirectories recursively.
+#'   Default is \code{FALSE}.
+#' @param pattern Character string. Regular expression pattern for filenames.
+#'   Default is \code{"\\\\.R$"} (files ending in .R, case insensitive).
+#'
+#' @return Character vector of full paths to R files found in the directory.
+#'   Returns an empty vector with a warning if no files are found.
+#'
 #' @export
+#'
 #' @examples
 #' \dontrun{
 #' # Get all R files in a directory
-#' files <- get_r_files("path/to/directory")
+#' files <- get_r_files("R/")
 #' 
 #' # Search recursively in subdirectories
-#' files <- get_r_files("path/to/directory", recursive = TRUE)
+#' files <- get_r_files("src/", recursive = TRUE)
 #' 
 #' # Use with analyze_internal_dependencies_multi
 #' files <- get_r_files("R/")
@@ -57,12 +82,26 @@ get_r_files <- function(directory, recursive = FALSE, pattern = "\\.R$") {
 #'
 #' @param file_paths Character vector of R file paths, directory paths, or a mix.
 #'   The function automatically detects files vs directories.
-#' @param include_disconnected If FALSE, exclude isolated nodes from the graph.
-#'   Default is TRUE.
-#' @param recursive If directories are encountered, search subdirectories recursively.
-#'   Default is FALSE.
-#' @return A visNetwork HTML widget displaying the dependency graph
+#' @param include_disconnected Logical. If \code{FALSE}, exclude isolated nodes
+#'   (functions with no dependencies) from the graph. Default is \code{TRUE}.
+#' @param recursive Logical. If directories are encountered, search subdirectories
+#'   recursively. Default is \code{FALSE}.
+#'
+#' @return A \code{visNetwork} HTML widget displaying the interactive dependency
+#'   graph. The graph can be saved using \code{htmlwidgets::saveWidget()}.
+#'
+#' @details
+#' This is a convenience wrapper around \code{\link{analyze_internal_dependencies_multi}}
+#' and \code{\link{plot_interactive_dependency_graph}}. It automatically:
+#' \itemize{
+#'   \item Detects whether each path is a file or directory
+#'   \item Collects all R files from directories
+#'   \item Analyzes function dependencies
+#'   \item Creates an interactive visualization
+#' }
+#'
 #' @export
+#'
 #' @examples
 #' \dontrun{
 #' # Analyze specific files
@@ -77,6 +116,10 @@ get_r_files <- function(directory, recursive = FALSE, pattern = "\\.R$") {
 #' # Analyze recursively and exclude disconnected nodes
 #' plot_dependency_graph("R/", recursive = TRUE, 
 #'                       include_disconnected = FALSE)
+#'
+#' # Save the output
+#' graph <- plot_dependency_graph("R/")
+#' htmlwidgets::saveWidget(graph, "dependencies.html")
 #' }
 plot_dependency_graph <- function(file_paths, 
                                   include_disconnected = TRUE,

@@ -1,9 +1,68 @@
 #' Analyze internal dependencies in R source files
 #'
-#' @param file_paths Character vector of R file paths
-#' @return A list with dependency_map, env, all_code_lines, function_file_map, duplicates
+#' Parses multiple R files to identify function definitions and their internal
+#' dependencies. Creates a comprehensive map of which functions call which other
+#' functions within the analyzed codebase.
+#'
+#' @param file_paths Character vector of R file paths to analyze.
+#'
+#' @return A list with the following components:
+#' \describe{
+#'   \item{dependency_map}{Named list mapping function names to character vectors
+#'     of their dependencies}
+#'   \item{env}{Environment containing all parsed functions}
+#'   \item{all_code_lines}{Character vector of all code lines from all files}
+#'   \item{function_file_map}{Named list mapping function names to their source
+#'     file paths}
+#'   \item{duplicates}{List of functions defined in multiple files with their
+#'     source locations}
+#' }
+#'
+#' @details
+#' This function uses \code{codetools::findGlobals()} to detect function calls
+#' within function bodies. Only functions defined within the analyzed files are
+#' tracked. External package functions and base R functions are not included in
+#' the dependency map.
+#'
+#' @importFrom codetools findGlobals
+#' 
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Analyze a single file
+#' dep_info <- analyze_internal_dependencies_multi("my_script.R")
+#'
+#' # Analyze multiple files
+#' files <- c("analysis.R", "utils.R", "helpers.R")
+#' dep_info <- analyze_internal_dependencies_multi(files)
+#'
+#' # View the dependency map
+#' print(dep_info$dependency_map)
+#'
+#' # Check for duplicate function definitions
+#' if (length(dep_info$duplicates) > 0) {
+#'   message("Warning: Functions defined in multiple files:")
+#'   print(dep_info$duplicates)
+#' }
+#' }
 analyze_internal_dependencies_multi <- function(file_paths) {
+  # Input validation
+  if (missing(file_paths) || length(file_paths) == 0) {
+    stop("'file_paths' must be a non-empty character vector")
+  }
+  
+  if (!is.character(file_paths)) {
+    stop("'file_paths' must be a character vector")
+  }
+  
+  # Check that files exist
+  missing_files <- file_paths[!file.exists(file_paths)]
+  if (length(missing_files) > 0) {
+    stop("The following files do not exist: ", 
+         paste(missing_files, collapse = ", "))
+  }
+  
   all_code_lines <- character()
   all_exprs <- list()
   env <- new.env()

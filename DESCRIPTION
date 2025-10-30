@@ -11,7 +11,7 @@ Description: Provides tools to analyze R source code and detect function definit
     Supports both individual files and directory-based analysis with automatic file
     detection. Useful for understanding code structure, identifying dependencies,
     and documenting R projects.
-License: GPL-3 + file LICENSE
+License: GPL-3
 URL: https://github.com/deamonpog/funviewR
 BugReports: https://github.com/deamonpog/funviewR/issues
 Encoding: UTF-8

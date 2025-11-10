@@ -40,22 +40,29 @@ and \code{\link{plot_interactive_dependency_graph}}. It automatically:
 }
 }
 \examples{
-\dontrun{
-# Analyze specific files
-plot_dependency_graph(c("script1.R", "script2.R"))
+# Create temporary directory and files
+temp_dir <- tempfile()
+dir.create(temp_dir)
 
-# Analyze all R files in a directory
-plot_dependency_graph("R/")
+# Create sample R files
+writeLines(c(
+  "add <- function(a, b) { a + b }",
+  "calc <- function(x) { add(x, 10) }"
+), file.path(temp_dir, "math.R"))
 
-# Mix files and directories (auto-detected)
-plot_dependency_graph(c("R/", "analysis.R", "tests/", "main.R"))
+writeLines(c(
+  "process <- function(data) { add(data, 5) }"
+), file.path(temp_dir, "process.R"))
 
-# Analyze recursively and exclude disconnected nodes
-plot_dependency_graph("R/", recursive = TRUE, 
-                      include_disconnected = FALSE)
+# Analyze and plot - single file
+graph <- plot_dependency_graph(file.path(temp_dir, "math.R"))
 
-# Save the output
-graph <- plot_dependency_graph("R/")
-htmlwidgets::saveWidget(graph, "dependencies.html")
-}
+# Analyze directory
+graph <- plot_dependency_graph(temp_dir)
+
+# Exclude disconnected nodes
+graph <- plot_dependency_graph(temp_dir, include_disconnected = FALSE)
+
+# Clean up
+unlink(temp_dir, recursive = TRUE)
 }

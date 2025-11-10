@@ -40,19 +40,26 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Analyze files and create graph
-#' files <- c("analysis.R", "utils.R")
-#' dep_info <- analyze_internal_dependencies_multi(files)
+#' # Create temporary R files with sample code
+#' temp_file <- tempfile(fileext = ".R")
+#' writeLines(c(
+#'   "helper_function <- function(x) { x * 2 }",
+#'   "main_function <- function(a) { helper_function(a) + 1 }",
+#'   "another_function <- function(b) { main_function(b) }"
+#' ), temp_file)
+#' 
+#' # Analyze the file
+#' dep_info <- analyze_internal_dependencies_multi(temp_file)
+#' 
+#' # Create interactive graph
 #' graph <- plot_interactive_dependency_graph(dep_info)
-#'
+#' 
 #' # Show only connected components
 #' graph <- plot_interactive_dependency_graph(dep_info,
-#'                                           include_disconnected = FALSE)
-#'
-#' # Save to HTML file
-#' htmlwidgets::saveWidget(graph, "dependencies.html")
-#' }
+#'                                            include_disconnected = FALSE)
+#' 
+#' # Clean up
+#' unlink(temp_file)
 plot_interactive_dependency_graph <- function(dep_info, include_disconnected = TRUE) {
   # Input validation
   if (missing(dep_info) || !is.list(dep_info)) {

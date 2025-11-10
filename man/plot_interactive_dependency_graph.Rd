@@ -42,17 +42,24 @@ The center node (most-connected function) is fixed at position (0,0) and
 rendered in dark red. Other nodes are positioned using a force-directed layout.
 }
 \examples{
-\dontrun{
-# Analyze files and create graph
-files <- c("analysis.R", "utils.R")
-dep_info <- analyze_internal_dependencies_multi(files)
+# Create temporary R files with sample code
+temp_file <- tempfile(fileext = ".R")
+writeLines(c(
+  "helper_function <- function(x) { x * 2 }",
+  "main_function <- function(a) { helper_function(a) + 1 }",
+  "another_function <- function(b) { main_function(b) }"
+), temp_file)
+
+# Analyze the file
+dep_info <- analyze_internal_dependencies_multi(temp_file)
+
+# Create interactive graph
 graph <- plot_interactive_dependency_graph(dep_info)
 
 # Show only connected components
 graph <- plot_interactive_dependency_graph(dep_info,
-                                          include_disconnected = FALSE)
+                                           include_disconnected = FALSE)
 
-# Save to HTML file
-htmlwidgets::saveWidget(graph, "dependencies.html")
-}
+# Clean up
+unlink(temp_file)
 }

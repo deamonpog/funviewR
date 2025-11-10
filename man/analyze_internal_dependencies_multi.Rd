@@ -34,13 +34,34 @@ tracked. External package functions and base R functions are not included in
 the dependency map.
 }
 \examples{
-\dontrun{
-# Analyze a single file
-dep_info <- analyze_internal_dependencies_multi("my_script.R")
+# Create temporary R files for demonstration
+temp_file1 <- tempfile(fileext = ".R")
+temp_file2 <- tempfile(fileext = ".R")
 
-# Analyze multiple files
-files <- c("analysis.R", "utils.R", "helpers.R")
-dep_info <- analyze_internal_dependencies_multi(files)
+# Write sample R code to temporary files
+writeLines(c(
+  "add_numbers <- function(a, b) {",
+  "  a + b",
+  "}",
+  "",
+  "calculate_sum <- function(x) {",
+  "  add_numbers(x, 10)",
+  "}"
+), temp_file1)
+
+writeLines(c(
+  "multiply <- function(a, b) {",
+  "  a * b",
+  "}",
+  "",
+  "process_data <- function(x) {",
+  "  result <- add_numbers(x, 5)",
+  "  multiply(result, 2)",
+  "}"
+), temp_file2)
+
+# Analyze the files
+dep_info <- analyze_internal_dependencies_multi(c(temp_file1, temp_file2))
 
 # View the dependency map
 print(dep_info$dependency_map)
@@ -50,5 +71,7 @@ if (length(dep_info$duplicates) > 0) {
   message("Warning: Functions defined in multiple files:")
   print(dep_info$duplicates)
 }
-}
+
+# Clean up
+unlink(c(temp_file1, temp_file2))
 }

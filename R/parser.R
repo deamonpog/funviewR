@@ -11,13 +11,21 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Parse a single file
-#' exprs <- get_all_expressions("my_script.R")
+#' # Create a temporary R file
+#' temp_file <- tempfile(fileext = ".R")
+#' writeLines(c(
+#'   "my_function <- function(x) { x + 1 }",
+#'   "another_function <- function(y) { y * 2 }"
+#' ), temp_file)
+#' 
+#' # Parse the file
+#' exprs <- get_all_expressions(temp_file)
 #' if (!is.null(exprs)) {
 #'   print(length(exprs))
 #' }
-#' }
+#' 
+#' # Clean up
+#' unlink(temp_file)
 get_all_expressions <- function(file_path) {
   code_lines <- readLines(file_path, warn = FALSE)
   code_text <- paste(code_lines, collapse = "\n")
@@ -43,17 +51,29 @@ get_all_expressions <- function(file_path) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Get all R files in a directory
-#' files <- get_r_files("R/")
+#' # Create a temporary directory with R files
+#' temp_dir <- tempfile()
+#' dir.create(temp_dir)
 #' 
-#' # Search recursively in subdirectories
-#' files <- get_r_files("src/", recursive = TRUE)
+#' # Create some R files
+#' writeLines("f1 <- function(x) { x + 1 }", file.path(temp_dir, "file1.R"))
+#' writeLines("f2 <- function(y) { y * 2 }", file.path(temp_dir, "file2.R"))
 #' 
-#' # Use with analyze_internal_dependencies_multi
-#' files <- get_r_files("R/")
-#' dep_info <- analyze_internal_dependencies_multi(files)
-#' }
+#' # Get all R files in the directory
+#' files <- get_r_files(temp_dir)
+#' print(files)
+#' 
+#' # Create subdirectory
+#' subdir <- file.path(temp_dir, "subdir")
+#' dir.create(subdir)
+#' writeLines("f3 <- function(z) { z - 1 }", file.path(subdir, "file3.R"))
+#' 
+#' # Search recursively
+#' files_recursive <- get_r_files(temp_dir, recursive = TRUE)
+#' print(files_recursive)
+#' 
+#' # Clean up
+#' unlink(temp_dir, recursive = TRUE)
 get_r_files <- function(directory, recursive = FALSE, pattern = "\\.R$") {
   if (!dir.exists(directory)) {
     stop("Directory does not exist: ", directory)
@@ -103,24 +123,31 @@ get_r_files <- function(directory, recursive = FALSE, pattern = "\\.R$") {
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # Analyze specific files
-#' plot_dependency_graph(c("script1.R", "script2.R"))
-#'
-#' # Analyze all R files in a directory
-#' plot_dependency_graph("R/")
-#'
-#' # Mix files and directories (auto-detected)
-#' plot_dependency_graph(c("R/", "analysis.R", "tests/", "main.R"))
-#'
-#' # Analyze recursively and exclude disconnected nodes
-#' plot_dependency_graph("R/", recursive = TRUE, 
-#'                       include_disconnected = FALSE)
-#'
-#' # Save the output
-#' graph <- plot_dependency_graph("R/")
-#' htmlwidgets::saveWidget(graph, "dependencies.html")
-#' }
+#' # Create temporary directory and files
+#' temp_dir <- tempfile()
+#' dir.create(temp_dir)
+#' 
+#' # Create sample R files
+#' writeLines(c(
+#'   "add <- function(a, b) { a + b }",
+#'   "calc <- function(x) { add(x, 10) }"
+#' ), file.path(temp_dir, "math.R"))
+#' 
+#' writeLines(c(
+#'   "process <- function(data) { add(data, 5) }"
+#' ), file.path(temp_dir, "process.R"))
+#' 
+#' # Analyze and plot - single file
+#' graph <- plot_dependency_graph(file.path(temp_dir, "math.R"))
+#' 
+#' # Analyze directory
+#' graph <- plot_dependency_graph(temp_dir)
+#' 
+#' # Exclude disconnected nodes
+#' graph <- plot_dependency_graph(temp_dir, include_disconnected = FALSE)
+#' 
+#' # Clean up
+#' unlink(temp_dir, recursive = TRUE)
 plot_dependency_graph <- function(file_paths, 
                                   include_disconnected = TRUE,
                                   recursive = FALSE) {

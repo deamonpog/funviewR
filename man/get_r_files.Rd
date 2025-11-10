@@ -25,15 +25,27 @@ matching a specified pattern. Returns full paths suitable for use with
 \code{\link{analyze_internal_dependencies_multi}}.
 }
 \examples{
-\dontrun{
-# Get all R files in a directory
-files <- get_r_files("R/")
+# Create a temporary directory with R files
+temp_dir <- tempfile()
+dir.create(temp_dir)
 
-# Search recursively in subdirectories
-files <- get_r_files("src/", recursive = TRUE)
+# Create some R files
+writeLines("f1 <- function(x) { x + 1 }", file.path(temp_dir, "file1.R"))
+writeLines("f2 <- function(y) { y * 2 }", file.path(temp_dir, "file2.R"))
 
-# Use with analyze_internal_dependencies_multi
-files <- get_r_files("R/")
-dep_info <- analyze_internal_dependencies_multi(files)
-}
+# Get all R files in the directory
+files <- get_r_files(temp_dir)
+print(files)
+
+# Create subdirectory
+subdir <- file.path(temp_dir, "subdir")
+dir.create(subdir)
+writeLines("f3 <- function(z) { z - 1 }", file.path(subdir, "file3.R"))
+
+# Search recursively
+files_recursive <- get_r_files(temp_dir, recursive = TRUE)
+print(files_recursive)
+
+# Clean up
+unlink(temp_dir, recursive = TRUE)
 }

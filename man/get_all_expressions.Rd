@@ -18,11 +18,19 @@ utility function primarily used internally by
 \code{\link{analyze_internal_dependencies_multi}}.
 }
 \examples{
-\dontrun{
-# Parse a single file
-exprs <- get_all_expressions("my_script.R")
+# Create a temporary R file
+temp_file <- tempfile(fileext = ".R")
+writeLines(c(
+  "my_function <- function(x) { x + 1 }",
+  "another_function <- function(y) { y * 2 }"
+), temp_file)
+
+# Parse the file
+exprs <- get_all_expressions(temp_file)
 if (!is.null(exprs)) {
   print(length(exprs))
 }
-}
+
+# Clean up
+unlink(temp_file)
 }

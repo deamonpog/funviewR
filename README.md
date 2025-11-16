@@ -2,6 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R](https://img.shields.io/badge/R-%3E%3D%203.5.0-blue)](https://www.r-project.org/)
+[![](https://cranlogs.r-pkg.org/badges/funviewR)](https://cran.rstudio.com/web/packages/funviewR/index.html)
 
 **funviewR** is an R package that analyzes R source code to detect function definitions and internal dependencies, then visualizes them as interactive network graphs.
 
@@ -159,3 +160,4 @@ This project is licensed under the GNU General Public License v3.0
 - Leverages [igraph](https://igraph.org/r/) for graph algorithms and distance calculations
 - Uses [htmltools](https://github.com/rstudio/htmltools) for safe HTML rendering
 - Powered by [magrittr](https://magrittr.tidyverse.org/) pipe operator
+

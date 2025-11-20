@@ -12,3 +12,8 @@
 ^cran-comments\.md$
 ^GITHUB_SETUP_ignore\.md$
 ^CRAN-SUBMISSION$
+^.*_dependency_graph\.html$
+^.*_dependency_graph_files$
+^cycle_test_graph\.html$
+^cycle_test_graph_files$
+^test_run_code_gen\.py$

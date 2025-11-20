@@ -108,10 +108,12 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
       }
 
       src_file <- function_file_map[[fname]]
-      doc_line <- grep(
-        paste0(fname, "\\s*<-\\s*function"),
-        all_code_lines
-      )[1] - 1
+      # Safely build a regex to locate the roxygen doc line preceding the function
+      # Escape any regex metacharacters in the function name (e.g. %+%, .., etc.)
+      escaped_fname <- gsub("([][{}()+*^$|\\.?])", "\\\\\\1", fname)
+      pattern <- paste0("\\b", escaped_fname, "\\s*<-\\s*function")
+      doc_match <- grep(pattern, all_code_lines)
+      doc_line <- if (length(doc_match) > 0) doc_match[1] - 1 else NA
       doc <- if (!is.na(doc_line) &&
         doc_line > 0 &&
         grepl("^\\s*#'", all_code_lines[doc_line])) {
@@ -175,6 +177,15 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
 
     # Create igraph object to calculate shortest paths
     g <- igraph::graph_from_data_frame(edges, directed = TRUE, vertices = nodes$id)
+
+    # Detect cycles via strongly connected components (SCCs). Any SCC of size > 1
+    # or a self-loop edge indicates participation in a cycle.
+    scc <- igraph::components(g, mode = "strong")
+    cyc_nodes <- names(scc$membership)[scc$csize[scc$membership] > 1]
+    # Include explicit self-loop cases (function calling itself) even if SCC size==1
+    self_loop_nodes <- edges$from[edges$from == edges$to]
+    cyc_nodes <- unique(c(cyc_nodes, self_loop_nodes))
+    nodes$in_cycle <- nodes$id %in% cyc_nodes
 
     # Calculate shortest path distances from center node to all other nodes
     distances <- igraph::distances(g, v = center_node, mode = "all")
@@ -250,6 +261,10 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
       return("dimgray") # For distances > 20
     })
 
+    # Emphasize cycle membership with thicker red borders
+    nodes$borderWidth <- ifelse(nodes$in_cycle, 4, 1)
+    nodes$color.border <- ifelse(nodes$in_cycle, "#FF0000", "black")
+
     # Define text colors for readability based on background color
     text_colors <- c(
       "#8B0000" = "white", # Dark Red - white text
@@ -307,7 +322,8 @@ plot_interactive_dependency_graph <- function(dep_info, include_disconnected = T
       } else {
         paste0("<b>Distance from center:</b> ", nodes$distance[i], " hops<br>")
       }
-      paste0(distance_info, original_title)
+      cycle_info <- if (nodes$in_cycle[i]) "<b>Cycle:</b> Part of a dependency cycle<br>" else ""
+      paste0(distance_info, cycle_info, original_title)
     })
   }
 

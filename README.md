@@ -2,7 +2,8 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R](https://img.shields.io/badge/R-%3E%3D%203.5.0-blue)](https://www.r-project.org/)
-[![](https://cranlogs.r-pkg.org/badges/funviewR)](https://cran.rstudio.com/web/packages/funviewR/index.html)
+![](https://cranlogs.r-pkg.org/badges/funviewR)
+[![CRAN](https://www.r-pkg.org/badges/version/funviewR)](https://CRAN.R-project.org/package=funviewR)
 
 **funviewR** is an R package that analyzes R source code to detect function definitions and internal dependencies, then visualizes them as interactive network graphs.
 
